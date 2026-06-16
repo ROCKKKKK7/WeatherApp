@@ -5,13 +5,25 @@ import iconMap from "./mapingicon.js";
 const apiKey = import.meta.env.VITE_API_KEY;
 
 function App() {
+	const [loading, setLoading] = useState(false); // состояние загрузки
 	const [city, setCity] = useState("");
-	// список найденных городов
-	const [cities, setCities] = useState([]);
+	const [cities, setCities] = useState([]); // список найденных городов
 	const [msg, setMsg] = useState("");
+	const [unit, setUnit] = useState("C"); // смена C F
+	const convertTemp = (temp) => {
+		if (unit === "F") return Math.round((temp * 9) / 5 + 32);
+		return temp;
+	};
+
+	// функция удаления
+	const handleDelete = (dataName) => {
+		setCities((prev) => prev.filter((c) => c.dataName !== dataName));
+	};
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
+		if (loading) return;
+		setLoading(true);
 		let inputVal = city.trim();
 
 		if (inputVal.includes(",")) {
@@ -28,10 +40,11 @@ function App() {
 			.then((data) => {
 				if (data.cod === "404") {
 					setMsg(" Город не найден");
+					setLoading(false);
 					return;
 				}
 				setMsg("");
-				const { main, name, sys, weather } = data;
+				const { main, name, sys, weather, wind } = data;
 
 				//защита от дубликатов
 				const dataName = `${name},${sys.country}`.toLowerCase();
@@ -54,6 +67,9 @@ function App() {
 						temp: Math.round(main.temp),
 						icon,
 						description: weather[0].description,
+						humidity: main.humidity,
+						wind: Math.round(wind.speed),
+						pressure: main.pressure,
 					},
 				]);
 				// очищаем поле ввода
@@ -61,15 +77,68 @@ function App() {
 			})
 			.catch(() => {
 				setMsg(" Город не найден");
-			});
+			})
+			.finally(() => setLoading(false));
+	};
+
+	// геолокация
+	const handleGeoLocation = () => {
+		if (!navigator.geolocation) {
+			setMsg("Геолокация не поддерживается вашим браузером");
+			return;
+		}
+
+		setMsg("Определяем местоположение...");
+		setLoading(true);
+
+		navigator.geolocation.getCurrentPosition(
+			(position) => {
+				const { latitude, longitude } = position.coords;
+				const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
+
+				fetch(url)
+					.then((response) => response.json())
+					.then((data) => {
+						const { main, name, sys, weather, wind } = data;
+						const dataName = `${name},${sys.country}`.toLowerCase();
+						const alreadyExists = cities.some(
+							(c) => c.dataName === dataName,
+						);
+						if (alreadyExists) {
+							setMsg("Этот город уже добавлен");
+							return;
+						}
+						const icon = `/src/assets/${iconMap[weather[0].icon] || "weather.svg"}`;
+						setCities((prev) => [
+							...prev,
+							{
+								dataName,
+								name,
+								country: sys.country,
+								temp: Math.round(main.temp),
+								icon,
+								description: weather[0].description,
+								humidity: main.humidity,
+								wind: Math.round(wind.speed),
+								pressure: main.pressure,
+							},
+						]);
+						setMsg("");
+					})
+					.catch(() => setMsg("Не удалось получить погоду"));
+			},
+			() => {
+				(setMsg("Не удалось определить местоположение"),
+					setLoading(false));
+			},
+			{ timeout: 5000 },
+		);
 	};
 
 	return (
 		<div className={styles.container}>
 			<section className={styles.topBanner}>
-				<h1 className={styles.heading}>
-					Простое приложение для прогноза погоды
-				</h1>
+				<h1 className={styles.heading}>Погода</h1>
 				<form onSubmit={handleSubmit}>
 					<input
 						type="text"
@@ -78,22 +147,53 @@ function App() {
 						value={city}
 						onChange={(e) => setCity(e.target.value)}
 					/>
-					<button type="submit">ОТПРАВИТЬ </button>
+					<button type="submit" disabled={loading}>
+						{loading ? "ПОСМОТРЕТЬ" : "ПОСМОТРЕТЬ"}
+					</button>
+					<span className={styles.msg}>{msg}</span>
+					<button
+						type="button"
+						className={styles.geoBtn}
+						onClick={handleGeoLocation}
+					>
+						{loading ? "Моё место" : "Моё место"}
+					</button>
 					<span className={styles.msg}>{msg}</span>
 				</form>
+				<div className={styles.unitToggle}>
+					<button
+						className={unit === "C" ? styles.activeUnit : ""}
+						onClick={() => setUnit("C")}
+					>
+						°C
+					</button>
+					<span>|</span>
+					<button
+						className={unit === "F" ? styles.activeUnit : ""}
+						onClick={() => setUnit("F")}
+					>
+						°F
+					</button>
+				</div>
 			</section>
 
 			<section className={styles.ajaxSection}>
 				<ul className={styles.cities}>
 					{cities.map((c, index) => (
 						<li key={index} className={styles.city}>
+							<button
+								className={styles.deleteBtn}
+								onClick={() => handleDelete(c.dataName)}
+							>
+								✕
+							</button>
 							<h2 className={styles.cityName}>
 								<span>{c.name}</span>
 								<sup>{c.country}</sup>
 							</h2>
 							<div className={styles.cityTemp}>
-								{c.temp}
-								<sup>°C</sup>
+								{convertTemp(c.temp)}
+								<sup>°{unit}</sup>
 							</div>
 							<figure>
 								<img
@@ -103,6 +203,17 @@ function App() {
 								/>
 								<figcaption>{c.description}</figcaption>
 							</figure>
+							<ul className={styles.cityDetails}>
+								<li>
+									Влажность: <strong>{c.humidity}%</strong>
+								</li>
+								<li>
+									Ветер: <strong>{c.wind} м/с</strong>
+								</li>
+								<li>
+									Давление: <strong>{c.pressure} гПа</strong>
+								</li>
+							</ul>
 						</li>
 					))}
 				</ul>
