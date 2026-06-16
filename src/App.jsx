@@ -2,9 +2,10 @@ import { useState } from "react";
 import styles from "./App.module.css";
 import iconMap from "./mapingicon.js";
 
-const apiKey = import.meta.env.VITE_API_KEY;
+const apiKey="842b2633b40c320ac50b9ceeaa858211"
 
 function App() {
+	const [darkMode, setDarkMode] = useState(true); // Смена темы
 	const [loading, setLoading] = useState(false); // состояние загрузки
 	const [city, setCity] = useState("");
 	const [cities, setCities] = useState([]); // список найденных городов
@@ -53,6 +54,7 @@ function App() {
 				);
 				if (alreadyExists) {
 					setMsg(" Этот город уже добавлен");
+					setLoading(false);
 					return;
 				}
 				const icon = `/src/assets/${iconMap[weather[0].icon] || "weather.svg"}`;
@@ -106,6 +108,7 @@ function App() {
 						);
 						if (alreadyExists) {
 							setMsg("Этот город уже добавлен");
+							setLoading(false);
 							return;
 						}
 						const icon = `/src/assets/${iconMap[weather[0].icon] || "weather.svg"}`;
@@ -124,6 +127,7 @@ function App() {
 							},
 						]);
 						setMsg("");
+						setLoading(false);
 					})
 					.catch(() => setMsg("Не удалось получить погоду"));
 			},
@@ -136,7 +140,9 @@ function App() {
 	};
 
 	return (
-		<div className={styles.container}>
+		<div
+			className={`${styles.container} ${darkMode ? styles.dark : styles.light}`}
+		>
 			<section className={styles.topBanner}>
 				<h1 className={styles.heading}>Погода</h1>
 				<form onSubmit={handleSubmit}>
@@ -147,16 +153,29 @@ function App() {
 						value={city}
 						onChange={(e) => setCity(e.target.value)}
 					/>
-					<button type="submit" disabled={loading}>
-						{loading ? "ПОСМОТРЕТЬ" : "ПОСМОТРЕТЬ"}
+					<button
+						type="submit"
+						disabled={loading}
+						className={styles.submitBtn}
+					>
+						{loading ? (
+							<span className={styles.spinner}></span>
+						) : (
+							"ОТПРАВИТЬ"
+						)}
 					</button>
 					<span className={styles.msg}>{msg}</span>
 					<button
 						type="button"
 						className={styles.geoBtn}
 						onClick={handleGeoLocation}
+						disabled={loading}
 					>
-						{loading ? "Моё место" : "Моё место"}
+						{loading ? (
+							<span className={styles.spinner}></span>
+						) : (
+							"Моё место"
+						)}
 					</button>
 					<span className={styles.msg}>{msg}</span>
 				</form>
@@ -173,6 +192,12 @@ function App() {
 						onClick={() => setUnit("F")}
 					>
 						°F
+					</button>
+					<button
+						className={styles.themeBtn}
+						onClick={() => setDarkMode((prev) => !prev)}
+					>
+						{darkMode ? "Светлая" : "Тёмная"}
 					</button>
 				</div>
 			</section>

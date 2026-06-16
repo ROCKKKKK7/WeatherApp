@@ -1,3 +1,4 @@
+/* CSS ПЕРЕМЕННЫЕ */
 :root {
 	--bg_main: #0a1f44;
 	--text_light: #fff;
@@ -8,28 +9,13 @@
 	--orange: #ff8c00;
 }
 
+/* СБРОС СТИЛЕЙ */
 * {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
 	font-weight: normal;
 	color: var(--text_light);
-}
-
-button {
-	cursor: pointer;
-}
-
-input {
-	-webkit-appearance: none;
-}
-
-button,
-input {
-	border: none;
-	background: none;
-	outline: none;
-	color: inherit;
 }
 
 img {
@@ -42,20 +28,67 @@ ul {
 	list-style: none;
 }
 
+button {
+	cursor: pointer;
+}
+
+button,
+input {
+	border: none;
+	background: none;
+	outline: none;
+	color: inherit;
+}
+
+input {
+	-webkit-appearance: none;
+}
+
+/* БАЗОВЫЕ СТИЛИ */
 body {
 	font:
 		1rem/1.3 "Roboto",
 		sans-serif;
-	background: var(--bg_main);
-	color: var(--text_dark);
-	padding: 50px;
+	margin: 0;
 }
 
+/* ТЕМЫ  ТЁМНАЯ / СВЕТЛАЯ */
+.dark {
+	background: #0a1f44;
+	min-height: 100vh;
+	padding: 50px;
+	width: 100%;
+}
+
+.light {
+	background: #f0f4f8;
+	min-height: 100vh;
+	padding: 50px;
+	width: 100%;
+}
+
+.light .heading,
+.light .unitToggle button,
+.light .unitToggle span {
+	color: #1e2432;
+}
+
+.light form input {
+	color: #1e2432;
+	border-color: #1e2432;
+}
+
+.light form input::placeholder {
+	color: #1e2432;
+}
+
+/* LAYOUT */
 .container {
-	max-width: 1200px;
+	max-width: 4000px;
 	margin: 0 auto;
 }
 
+/* ШАПКА ПОИСК */
 .topBanner {
 	color: var(--text_light);
 }
@@ -109,28 +142,69 @@ body {
 	color: var(--text_light);
 }
 
-@media screen and (max-width: 700px) {
-	.topBanner form {
-		flex-direction: column;
-	}
-
-	.topBanner form input,
-	.topBanner form button {
-		width: 100%;
-	}
-
-	.topBanner form button {
-		margin: 20px 0 0 0;
-	}
-
-	.msg {
-		position: static;
-		max-width: none;
-		min-height: 0;
-		margin-top: 10px;
-	}
+/* КНОПКИ ГЕО И ТЕМА */
+.geoBtn {
+	font-size: 1rem;
+	font-weight: bold;
+	letter-spacing: 0.1em;
+	padding: 15px 20px;
+	margin-left: 10px;
+	border-radius: 5px;
+	background: var(--orange);
+	transition: background 0.3s ease-in-out;
 }
 
+.geoBtn:hover {
+	background: #e07b00;
+}
+
+.themeBtn {
+	margin-left: 20px;
+	padding: 8px 16px;
+	border-radius: 20px;
+	font-size: 0.9rem;
+	background: rgba(255, 255, 255, 0.15);
+	transition: background 0.3s;
+	color: #fff;
+}
+
+.themeBtn:hover {
+	background: rgba(255, 255, 255, 0.25);
+}
+
+.light .themeBtn {
+	color: #1e2432;
+	background: rgba(0, 0, 0, 0.1);
+}
+
+/* ПЕРЕКЛЮЧАТЕЛЬ C / F */
+.unitToggle {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 20px;
+	font-size: 1.5rem;
+	color: var(--text_light);
+}
+
+.unitToggle button {
+	font-size: 1.5rem;
+	color: var(--text_light);
+	opacity: 0.5;
+	transition: opacity 0.2s;
+}
+
+.unitToggle button:hover {
+	opacity: 0.8;
+}
+
+.activeUnit {
+	opacity: 1 !important;
+	font-weight: bold;
+	border-bottom: 2px solid var(--red) !important;
+}
+
+/* СПИСОК ГОРОДОВ СЕТКА */
 .ajaxSection {
 	margin: 50px 0 20px;
 }
@@ -159,12 +233,25 @@ body {
 	}
 }
 
+/* КАРТОЧКА ГОРОДА */
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
 .city {
 	position: relative;
 	padding: 40px 10%;
 	border-radius: 20px;
 	background: var(--text_light);
 	color: var(--text_med);
+	animation: fadeInUp 0.4s ease forwards;
 }
 
 .city::after {
@@ -184,16 +271,16 @@ body {
 	color: var(--text_dark);
 }
 
+.cityName span {
+	color: var(--text_dark) !important;
+}
+
 .cityName sup {
 	padding: 0.2em 0.6em;
 	border-radius: 30px;
 	color: var(--text_dark);
 	background: var(--orange);
 	font-size: 0.5em;
-}
-
-.cityName span {
-	color: var(--text_dark) !important;
 }
 
 .cityTemp {
@@ -221,22 +308,6 @@ body {
 	color: var(--text_med);
 }
 
-.deleteBtn {
-	position: absolute;
-	top: 10px;
-	right: 10px;
-	background: none;
-	border: none;
-	font-size: 1.2rem;
-	cursor: pointer;
-	color: var(--text_med);
-	transition: color 0.2s;
-}
-
-.deleteBtn:hover {
-	color: var(--red);
-}
-
 .cityDetails {
 	margin-top: 15px;
 	display: flex;
@@ -253,43 +324,58 @@ body {
 	color: var(--text_dark);
 }
 
-.unitToggle {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	margin-top: 20px;
-	font-size: 1.5rem;
-	color: var(--text_light);
+.deleteBtn {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	background: none;
+	border: none;
+	font-size: 1.2rem;
+	cursor: pointer;
+	color: var(--text_med);
+	transition: color 0.2s;
 }
 
-.unitToggle button {
-	font-size: 1.5rem;
-	color: var(--text_light);
-	opacity: 0.5;
-	transition: opacity 0.2s;
+.deleteBtn:hover {
+	color: var(--red);
 }
 
-.unitToggle button:hover {
-	opacity: 0.8;
+/* СПИННЕР ЗАГРУЗКИ */
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
 }
 
-.activeUnit {
-	opacity: 1 !important;
-	font-weight: bold;
-	border-bottom: 2px solid var(--red) !important;
+.spinner {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	border: 2px solid #fff;
+	border-top-color: transparent;
+	border-radius: 50%;
+	animation: spin 0.6s linear infinite;
 }
 
-.geoBtn {
-	font-size: 1rem;
-	font-weight: bold;
-	letter-spacing: 0.1em;
-	padding: 15px 20px;
-	margin-left: 10px;
-	border-radius: 5px;
-	background: var(--orange);
-	transition: background 0.3s ease-in-out;
-}
+/* АДАПТИВ МОБИЛЬНЫЕ */
+@media screen and (max-width: 700px) {
+	.topBanner form {
+		flex-direction: column;
+	}
 
-.geoBtn:hover {
-	background: #e07b00;
+	.topBanner form input,
+	.topBanner form button {
+		width: 100%;
+	}
+
+	.topBanner form button {
+		margin: 20px 0 0 0;
+	}
+
+	.msg {
+		position: static;
+		max-width: none;
+		min-height: 0;
+		margin-top: 10px;
+	}
 }
