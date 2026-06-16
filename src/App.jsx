@@ -1,19 +1,48 @@
 import { useState } from "react";
 import styles from "./App.module.css";
 import iconMap from "./mapingicon.js";
+import weatherTranslations from "./weatherTranslations.js";
+import translations from "./translations.js";
 
-const apiKey="842b2633b40c320ac50b9ceeaa858211"
+const apiKey = "842b2633b40c320ac50b9ceeaa858211";
 
 function App() {
+	const [lang, setLang] = useState("ru"); // смена языка
 	const [darkMode, setDarkMode] = useState(true); // Смена темы
 	const [loading, setLoading] = useState(false); // состояние загрузки
 	const [city, setCity] = useState("");
 	const [cities, setCities] = useState([]); // список найденных городов
 	const [msg, setMsg] = useState("");
 	const [unit, setUnit] = useState("C"); // смена C F
+	const t = translations[lang];
+
 	const convertTemp = (temp) => {
 		if (unit === "F") return Math.round((temp * 9) / 5 + 32);
 		return temp;
+	};
+
+	// функция превода
+	const translateCity = async (name, targetLang) => {
+		if (targetLang === "en") return name;
+		const url = `https://api.openweathermap.org/data/2.5/weather?q=${name}&appid=${apiKey}&units=metric&lang=ru`;
+		const res = await fetch(url);
+		const data = await res.json();
+		return data.name || name;
+	};
+	// обновление карточки при смене языка
+	const handleLangChange = async (newLang) => {
+		setLang(newLang);
+		setMsg("");
+		const updated = await Promise.all(
+			cities.map(async (c) => {
+				const translatedName = await translateCity(
+					c.originalName,
+					newLang,
+				);
+				return { ...c, name: translatedName };
+			}),
+		);
+		setCities(updated);
 	};
 
 	// функция удаления
@@ -34,13 +63,13 @@ function App() {
 			}
 		}
 
-		const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+		const url = `https://api.openweathermap.org/data/2.5/weather?q=${inputVal}&appid=${apiKey}&units=metric`;
 
 		fetch(url)
 			.then((response) => response.json())
-			.then((data) => {
+			.then(async (data) => {
 				if (data.cod === "404") {
-					setMsg(" Город не найден");
+					setMsg(t.cityNotFound);
 					setLoading(false);
 					return;
 				}
@@ -53,18 +82,20 @@ function App() {
 					(c) => c.dataName === dataName,
 				);
 				if (alreadyExists) {
-					setMsg(" Этот город уже добавлен");
+					setMsg(t.cityExists);
 					setLoading(false);
 					return;
 				}
 				const icon = `/src/assets/${iconMap[weather[0].icon] || "weather.svg"}`;
 
+				const translatedName = await translateCity(name, lang);
 				// добавляем новый город в список
 				setCities((prev) => [
 					...prev,
 					{
 						dataName,
-						name,
+						originalName: name,
+						name: translatedName,
 						country: sys.country,
 						temp: Math.round(main.temp),
 						icon,
@@ -74,11 +105,11 @@ function App() {
 						pressure: main.pressure,
 					},
 				]);
-				// очищаем поле ввода
+				// очистка поле ввода
 				setCity("");
 			})
 			.catch(() => {
-				setMsg(" Город не найден");
+				setMsg(t.cityNotFound);
 			})
 			.finally(() => setLoading(false));
 	};
@@ -86,37 +117,36 @@ function App() {
 	// геолокация
 	const handleGeoLocation = () => {
 		if (!navigator.geolocation) {
-			setMsg("Геолокация не поддерживается вашим браузером");
+			setMsg(t.geoNotSupported);
 			return;
 		}
-
-		setMsg("Определяем местоположение...");
+		setMsg(t.geoLoading); // ← было t.geoError
 		setLoading(true);
-
 		navigator.geolocation.getCurrentPosition(
 			(position) => {
 				const { latitude, longitude } = position.coords;
 				const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
-
 				fetch(url)
 					.then((response) => response.json())
-					.then((data) => {
+					.then(async (data) => {
 						const { main, name, sys, weather, wind } = data;
 						const dataName = `${name},${sys.country}`.toLowerCase();
 						const alreadyExists = cities.some(
 							(c) => c.dataName === dataName,
 						);
 						if (alreadyExists) {
-							setMsg("Этот город уже добавлен");
+							setMsg(t.cityExists);
 							setLoading(false);
 							return;
 						}
+						const translatedName = await translateCity(name, lang);
 						const icon = `/src/assets/${iconMap[weather[0].icon] || "weather.svg"}`;
 						setCities((prev) => [
 							...prev,
 							{
 								dataName,
-								name,
+								originalName: name,
+								name: translatedName, // ← убрал дубль
 								country: sys.country,
 								temp: Math.round(main.temp),
 								icon,
@@ -129,11 +159,14 @@ function App() {
 						setMsg("");
 						setLoading(false);
 					})
-					.catch(() => setMsg("Не удалось получить погоду"));
+					.catch(() => {
+						setMsg(t.cityNotFound);
+						setLoading(false);
+					});
 			},
 			() => {
-				(setMsg("Не удалось определить местоположение"),
-					setLoading(false));
+				setMsg(t.geoError); // ← было geoLoading, исправил
+				setLoading(false);
 			},
 			{ timeout: 5000 },
 		);
@@ -144,11 +177,11 @@ function App() {
 			className={`${styles.container} ${darkMode ? styles.dark : styles.light}`}
 		>
 			<section className={styles.topBanner}>
-				<h1 className={styles.heading}>Погода</h1>
+				<h1 className={styles.heading}>{t.title}</h1>
 				<form onSubmit={handleSubmit}>
 					<input
 						type="text"
-						placeholder="Поиск города"
+						placeholder={t.placeholder}
 						autoFocus
 						value={city}
 						onChange={(e) => setCity(e.target.value)}
@@ -161,7 +194,7 @@ function App() {
 						{loading ? (
 							<span className={styles.spinner}></span>
 						) : (
-							"ОТПРАВИТЬ"
+							t.submit
 						)}
 					</button>
 					<span className={styles.msg}>{msg}</span>
@@ -174,7 +207,7 @@ function App() {
 						{loading ? (
 							<span className={styles.spinner}></span>
 						) : (
-							"Моё место"
+							t.geo
 						)}
 					</button>
 					<span className={styles.msg}>{msg}</span>
@@ -197,7 +230,15 @@ function App() {
 						className={styles.themeBtn}
 						onClick={() => setDarkMode((prev) => !prev)}
 					>
-						{darkMode ? "Светлая" : "Тёмная"}
+						{darkMode ? t.lightTheme : t.darkTheme}
+					</button>
+					<button
+						className={styles.themeBtn}
+						onClick={() =>
+							handleLangChange(lang === "ru" ? "en" : "ru")
+						}
+					>
+						{lang === "ru" ? "EN" : "RU"}
 					</button>
 				</div>
 			</section>
@@ -226,17 +267,32 @@ function App() {
 									src={c.icon}
 									alt={c.description}
 								/>
-								<figcaption>{c.description}</figcaption>
+								<figcaption>
+									{" "}
+									{lang === "ru"
+										? (
+												weatherTranslations[
+													c.description.toLowerCase()
+												] || c.description
+											).toUpperCase()
+										: c.description.toUpperCase()}
+								</figcaption>
 							</figure>
 							<ul className={styles.cityDetails}>
 								<li>
-									Влажность: <strong>{c.humidity}%</strong>
+									{t.humidity}: <strong>{c.humidity}%</strong>
 								</li>
 								<li>
-									Ветер: <strong>{c.wind} м/с</strong>
+									{t.wind}:{" "}
+									<strong>
+										{c.wind} {t.windUnit}
+									</strong>
 								</li>
 								<li>
-									Давление: <strong>{c.pressure} гПа</strong>
+									{t.pressure}:{" "}
+									<strong>
+										{c.pressure} {t.pressureUnit}
+									</strong>
 								</li>
 							</ul>
 						</li>
