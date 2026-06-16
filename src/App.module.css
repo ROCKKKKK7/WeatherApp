@@ -12,6 +12,7 @@
 	padding: 0;
 	box-sizing: border-box;
 	font-weight: normal;
+	color: var(--text_light);
 }
 button {
 	cursor: pointer;
@@ -51,12 +52,10 @@ body {
 
 .heading {
 	font-weight: bold;
-
 	font-size: 4rem;
-
 	letter-spacing: 0.02em;
-
 	padding: 0 0 30px 0;
+	color: var(--text_light);
 }
 
 .top-banner form {
