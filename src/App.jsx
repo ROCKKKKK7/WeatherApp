@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styles from "./App.module.css";
+import iconMap from "./mapingicon.js";
 
 const apiKey = import.meta.env.VITE_API_KEY;
 
@@ -11,6 +12,15 @@ function App() {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
+		let inputVal = city.trim();
+
+		if (inputVal.includes(",")) {
+			const parts = inputVal.split(",");
+			if (parts[1].trim().length > 2) {
+				inputVal = parts[0].trim();
+			}
+		}
+
 		const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
 
 		fetch(url)
@@ -25,12 +35,14 @@ function App() {
 
 				//защита от дубликатов
 				const dataName = `${name},${sys.country}`.toLowerCase();
-				const alreadyExists = cities.some(c => c.dataName === dataName);
-					if (alreadyExists) {
-						setMsg("Этот город уже добавлен");
-						return;
-					}
-				const icon = `https://openweathermap.org/img/wn/${weather[0].icon}@2x.png`;
+				const alreadyExists = cities.some(
+					(c) => c.dataName === dataName,
+				);
+				if (alreadyExists) {
+					setMsg(" Этот город уже добавлен");
+					return;
+				}
+				const icon = `/src/assets/${iconMap[weather[0].icon] || "weather.svg"}`;
 
 				// добавляем новый город в список
 				setCities((prev) => [
