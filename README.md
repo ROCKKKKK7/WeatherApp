@@ -5,6 +5,9 @@
 
 ## Ссылки
 
+Code Climate недоступен и использовал Codacy как замену
+
+- **Бейдж** _[![Codacy Badge](https://app.codacy.com/project/badge/Grade/aa331af7954d41258bde5365c0d2f435)](https://app.codacy.com/gh/ROCKKKKK7/WeatherApp/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)_
 - **Демо:** _ссылка на Vercel (https://weather-app-mu-three-75.vercel.app/)_
 - **Туториал:** [Build a Simple Weather App With Vanilla JavaScript](https://webdesign.tutsplus.com/build-a-simple-weather-app-with-vanilla-javascript--cms-33893t)
 - **API:** [OpenWeatherMap](https://openweathermap.org/)
