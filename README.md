@@ -1,7 +1,8 @@
 # Weather App
 
 Простое приложение для просмотра погоды в любом городе мира, построенное на React.
-![demo](https://github.com/ROCKKKKK7/WeatherApp/raw/main/demo.gif)
+![demo](demo.gif)
+
 ## Ссылки
 
 - **Демо:** _ссылка на Vercel (https://weather-app-mu-three-75.vercel.app/)_
