@@ -86,7 +86,7 @@ function App() {
 					setLoading(false);
 					return;
 				}
-				const icon = `/src/assets/${iconMap[weather[0].icon] || "weather.svg"}`;
+				const icon = iconMap[weather[0].icon] || weatherFallback;
 
 				const translatedName = await translateCity(name, lang);
 				// добавляем новый город в список
@@ -140,7 +140,8 @@ function App() {
 							return;
 						}
 						const translatedName = await translateCity(name, lang);
-						const icon = `/src/assets/${iconMap[weather[0].icon] || "weather.svg"}`;
+						const icon =
+							iconMap[weather[0].icon] || weatherFallback;
 						setCities((prev) => [
 							...prev,
 							{

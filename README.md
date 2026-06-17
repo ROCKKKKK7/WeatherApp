@@ -1,16 +1,59 @@
-# React + Vite
+# Weather App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Простое приложение для просмотра погоды в любом городе мира, построенное на React.
+![demo](demo.gif)
+## Ссылки
 
-Currently, two official plugins are available:
+- **Демо:** _ссылка на Vercel (https://weather-app-mu-three-75.vercel.app/)_
+- **Туториал:** [Build a Simple Weather App With Vanilla JavaScript](https://webdesign.tutsplus.com/build-a-simple-weather-app-with-vanilla-javascript--cms-33893t)
+- **API:** [OpenWeatherMap](https://openweathermap.org/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Функциональность
 
-## React Compiler
+- Поиск погоды по названию города
+- Определение погоды по геолокации
+- Переключение между °C и °F
+- Удаление карточки города
+- Отображение влажности, скорости ветра и давления
+- Тёмная / светлая тема
+- Переключение языка (RU / EN)
+- Анимация появления карточек
+- Адаптивный дизайн
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Стек технологий
 
-## Expanding the ESLint configuration
+- **React** (Vite)
+- **OpenWeatherMap API**
+- **CSS Modules**
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Установка и запуск
+
+```bash
+# Клонировать репозиторий
+git clone https://github.com/ROCKKKKK7/WeatherApp.git
+
+# Перейти в папку
+cd WeatherApp
+
+# Установить зависимости
+npm install
+
+# Запустить проект
+npm run dev
+```
+
+## API ключ
+
+Проект использует [OpenWeatherMap API](https://openweathermap.org/api). API ключ уже встроен в проект для удобства проверки.
+
+## Структура проекта
+
+```
+src/
+├── App.jsx                 # Главный компонент
+├── App.module.css          # Стили
+├── mapingicon.js           # Маппинг иконок погоды
+├── weatherTranslations.js  # Переводы описаний погоды
+├── translations.js         # Переводы интерфейса
+└── assets/                 # Иконки погоды (SVG)
+```

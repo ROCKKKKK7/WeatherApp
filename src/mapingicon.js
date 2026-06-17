@@ -1,3 +1,5 @@
+import cloudyDay3 from "./assets/cloudy-day-3.svg";
+
 const iconMap = {
 	"01d": "day.svg",
 	"01n": "night.svg",
@@ -5,7 +7,7 @@ const iconMap = {
 	"02n": "cloudy-night-1.svg",
 	"03d": "cloudy-day-2.svg",
 	"03n": "cloudy-night-2.svg",
-	"04d": "cloudy-day-3.svg",
+	"04d": cloudyDay3,
 	"04n": "cloudy-night-3.svg",
 	"09d": "rainy-5.svg",
 	"09n": "rainy-5.svg",
